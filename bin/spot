@@ -18,6 +18,8 @@ ${gg}ext ${g}<query> [path]       $x Any files with that extension.
                              $y $ spot ext pdf ~
 ${gg}file ${g}<query> [path]      $x Find files.
                              $y $ spot file vimrc ~/dotfiles
+${gg}group ${g}<group|gid> [path] $x All files from user.
+                             $y $ spot group \$GID /etc
 ${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
                           Or (k)ilobytes, (m)egabytes, (g)igabytes.
                              $y $ spot size '<=' 1m
@@ -74,6 +76,18 @@ find_file() {
     mdfind -name "$file" ${dir:+ -onlyin "$dir"}
 }
 
+find_group() {
+    required $# '<group|gid>'
+    local group=$1 dir=$2
+    if [[ "$group" =~ ^[0-9]+$ ]]; then
+        echo foo
+        mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
+    else
+        group=$(awk -F: -v group="^$group\$" '$1 ~ group { print $3 }' /etc/group)
+        mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
+    fi
+}
+
 find_size() {
     required $# '<rel> <size>' '<size>'
     local relation=$1 size=$2 dir=$3
@@ -118,6 +132,7 @@ main() {
         author) shift; find_author "$@" ;;
         ext)    shift; find_ext    "$@" ;;
         file)   shift; find_file   "$@" ;;
+        group)  shift; find_group  "$@" ;;
         size)   shift; find_size   "$@" ;;
         text)   shift; find_text   "$@" ;;
         user)   shift; find_user   "$@" ;;
