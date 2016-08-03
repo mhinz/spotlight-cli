@@ -34,6 +34,16 @@ ${gg}<path>                   $x Get all attributes for that path.
 MSG
 }
 
+required() {
+    local argcount=$1
+    shift
+    local foo=("$@")
+    if (( argcount < $# )); then
+        echo -e "Missing: \x1b[32m${foo[$argcount]}" 1>&2
+        exit 1
+    fi
+}
+
 find_apps() {
     for dir in {,$HOME}/Applications; do
         mdfind -onlyin $dir 'kMDItemContentType == "com.apple.application-*"'
@@ -45,24 +55,28 @@ find_attr_with_desc() {
 }
 
 find_author() {
+    required $# '<query>'
     local query=$1
     local dir=$2
     mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_ext() {
+    required $# '<query>'
     local ext=$1
     local dir=$2
     mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_file() {
+    required $# '<user|uid>'
     local file=$1
     local dir=$2
     mdfind -name "$file" ${dir:+ -onlyin "$dir"}
 }
 
 find_size() {
+    required $# '<rel> <size>' '<size>'
     local relation=$1
     local size=$2
     local dir=$3
@@ -74,6 +88,7 @@ find_size() {
 }
 
 find_user() {
+    required $# '<user|uid>'
     local user=$1
     local dir=$2
     if [[ "$user" =~ ^[0-9]+$ ]]; then
