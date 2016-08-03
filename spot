@@ -6,29 +6,18 @@ usage: $0 [command]
 
 Spotlight CLI.
 
-Commands:
-
 apps                   Installed applications.
-
 attr                   Attributes that can be used with "spot <query>".
-
 author <query> [path]  Files from author.
-
 ext <query> [path]     Any files with that extension.
-
 file <query> [path]    Find files.
-
 size <query> [path]    Find all files of a certain size in bytes.
-
-                       spot size '<=' 10
-                       spot size '==' 1m
-                       spot size '>=' 10g
-
+                       $ spot size '<=' 10
+                       $ spot size '>=' 100m
 user <query> [path]    All files from user. Query can be an account or UID.
 
-<query> [path]         Use any attribute from "spot attr". See l
+<query> [path]         Use any attribute from "spot attr".
 <path>                 Get all attributes for that path.
-
 MSG
 }
 
@@ -42,40 +31,57 @@ find_attr_with_desc() {
     mdimport -A | awk -F '\t\t' '{ print $1 "|" $3 }' | tr -d \' | column -ts \|
 }
 
-find_authors() {
+find_author() {
     local query=$1
     local dir=$2
     mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
 }
 
+find_ext() {
+    local ext=$1
+    local dir=$2
+    mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
+}
+
+find_file() {
+    local file=$1
+    local dir=$2
+    mdfind -name "$file" ${dir:+ -onlyin "$dir"}
+}
+
+find_size() {
+    local relation=$1
+    local size=$2
+    local dir=$3
+    mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
+}
+
+find_user() {
+    local user=$1
+    local dir=$2
+    if [[ "$user" =~ ^[0-9]+$ ]]; then
+        mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
+    else
+        mdfind "kMDItemFSOwnerUserID == \"$(id -u $user)\"" ${dir:+ -onlyin "$dir"}
+    fi
+}
+
+no_command_given() {
+    if [ -e "$1" ]; then
+        mdls "$1"
+    else
+        mdfind "$1" ${2:+ -onlyin "$2"}
+    fi
+}
+
 case "$1" in
-    apps)   find_apps ;;
-    attr)   find_attr_with_desc ;;
-    author) shift; find_authors $@ ;;
-    ext)
-        mdfind "kMDItemFSName == \"*.$2\"" ${3:+ -onlyin "$3"}
-        ;;
-    file)
-        mdfind -name "$2" ${3:+ -onlyin "$3"}
-        ;;
-    size)
-        mdfind "kMDItemFSSize $2" ${3:+ -onlyin "$3"}
-        ;;
-    user)
-        if [[ "$2" =~ ^[0-9]+$ ]]; then
-            mdfind "kMDItemFSOwnerUserID == $2" ${3:+ -onlyin "$3"}
-        else
-            mdfind "kMDItemFSOwnerUserID == \"$(id -u $2)\"" ${3:+ -onlyin "$3"}
-        fi
-        ;;
-    '')
-        helpme
-        ;;
-    *)
-        if [ -e "$1" ]; then
-            mdls "$1"
-        else
-            mdfind "$1" ${2:+ -onlyin "$2"}
-        fi
-        ;;
+    apps)   find_apps               ;;
+    attr)   find_attr_with_desc     ;;
+    author) shift; find_author "$@" ;;
+    ext)    shift; find_ext    "$@" ;;
+    file)   shift; find_file   "$@" ;;
+    size)   shift; find_size   "$@" ;;
+    user)   shift; find_user   "$@" ;;
+    '')     helpme                  ;;
+    *)      no_command_given "$@"   ;;
 esac
