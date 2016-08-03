@@ -17,7 +17,7 @@ ${gg}author ${g}<query> [path]    $x Files from author.
 ${gg}ext ${g}<query> [path]       $x Any files with that extension.
                              $y $ spot ext pdf ~
 ${gg}file ${g}<query> [path]      $x Find files.
-                             $y $ spot vimrc ~/dotfiles
+                             $y $ spot file vimrc ~/dotfiles
 ${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
                           Or (k)ilobytes, (m)egabytes, (g)igabytes.
                              $y $ spot size '<=' 1m
@@ -25,6 +25,8 @@ ${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
 ${gg}user ${g}<user|uid> [path]   $x All files from user.
                              $y $ spot user mhi
                              $y $ spot user \$UID /var
+${gg}text ${g}<query> [path]      $x Find files containing text.
+                             $y $ spot text 'ascii porn' ~
 ${gg}<query> ${g}[path]           $x Generic query. Supports any attribute from "spot attr".
                              $y $ spot foo
                              $y $ spot 'kMDItemMusicalGenre == "*Metal*"' /data/music
@@ -82,6 +84,12 @@ find_size() {
     mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
 }
 
+find_text() {
+    required $# '<query>'
+    local text=$1 dir=$2
+    mdfind "kMDItemTextContent == \"*${text}*\"" ${dir:+ -onlyin "$dir"}
+}
+
 find_user() {
     required $# '<user|uid>'
     local user=$1 dir=$2
@@ -111,6 +119,7 @@ main() {
         ext)    shift; find_ext    "$@" ;;
         file)   shift; find_file   "$@" ;;
         size)   shift; find_size   "$@" ;;
+        text)   shift; find_text   "$@" ;;
         user)   shift; find_user   "$@" ;;
         '')     helpme                  ;;
         *)      no_command_given "$@"   ;;
