@@ -1,7 +1,7 @@
 #!/bin/bash
 
 helpme() {
-        cat <<MSG
+    cat <<MSG
 usage: $0 [command]
 
 Spotlight CLI.
@@ -74,14 +74,21 @@ no_command_given() {
     fi
 }
 
-case "$1" in
-    apps)   find_apps               ;;
-    attr)   find_attr_with_desc     ;;
-    author) shift; find_author "$@" ;;
-    ext)    shift; find_ext    "$@" ;;
-    file)   shift; find_file   "$@" ;;
-    size)   shift; find_size   "$@" ;;
-    user)   shift; find_user   "$@" ;;
-    '')     helpme                  ;;
-    *)      no_command_given "$@"   ;;
-esac
+main() {
+    [ $(uname) != Darwin ] &&
+        { 2>&1 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
+
+    case "$1" in
+        apps)   find_apps               ;;
+        attr)   find_attr_with_desc     ;;
+        author) shift; find_author "$@" ;;
+        ext)    shift; find_ext    "$@" ;;
+        file)   shift; find_file   "$@" ;;
+        size)   shift; find_size   "$@" ;;
+        user)   shift; find_user   "$@" ;;
+        '')     helpme                  ;;
+        *)      no_command_given "$@"   ;;
+    esac
+}
+
+main "$@"
