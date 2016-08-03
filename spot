@@ -1,0 +1,81 @@
+#!/bin/bash
+
+helpme() {
+        cat <<MSG
+usage: $0 [command]
+
+Spotlight CLI.
+
+Commands:
+
+apps                   Installed applications.
+
+attr                   Attributes that can be used with "spot <query>".
+
+author <query> [path]  Files from author.
+
+ext <query> [path]     Any files with that extension.
+
+file <query> [path]    Find files.
+
+size <query> [path]    Find all files of a certain size in bytes.
+
+                       spot size '<=' 10
+                       spot size '==' 1m
+                       spot size '>=' 10g
+
+user <query> [path]    All files from user. Query can be an account or UID.
+
+<query> [path]         Use any attribute from "spot attr". See l
+<path>                 Get all attributes for that path.
+
+MSG
+}
+
+find_apps() {
+    for dir in {,$HOME}/Applications; do
+        mdfind -onlyin $dir 'kMDItemContentType == "com.apple.application-*"'
+    done
+}
+
+find_attr_with_desc() {
+    mdimport -A | awk -F '\t\t' '{ print $1 "|" $3 }' | tr -d \' | column -ts \|
+}
+
+find_authors() {
+    local query=$1
+    local dir=$2
+    mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
+}
+
+case "$1" in
+    apps)   find_apps ;;
+    attr)   find_attr_with_desc ;;
+    author) shift; find_authors $@ ;;
+    ext)
+        mdfind "kMDItemFSName == \"*.$2\"" ${3:+ -onlyin "$3"}
+        ;;
+    file)
+        mdfind -name "$2" ${3:+ -onlyin "$3"}
+        ;;
+    size)
+        mdfind "kMDItemFSSize $2" ${3:+ -onlyin "$3"}
+        ;;
+    user)
+        if [[ "$2" =~ ^[0-9]+$ ]]; then
+            mdfind "kMDItemFSOwnerUserID == $2" ${3:+ -onlyin "$3"}
+        else
+            mdfind "kMDItemFSOwnerUserID == \"$(id -u $2)\"" ${3:+ -onlyin "$3"}
+        fi
+        ;;
+    '')
+        helpme
+        ;;
+    *)
+        if [ -e "$1" ]; then
+            mdls "$1"
+        else
+            mdfind "$1" ${2:+ -onlyin "$2"}
+        fi
+        ;;
+esac
