@@ -6,19 +6,28 @@ usage: $0 [command]
 
 Spotlight CLI.
 
-apps                   Installed applications.
-attr                   Attributes that can be used with "spot <query>".
-author <query> [path]  Files from author.
-ext <query> [path]     Any files with that extension.
-file <query> [path]    Find files.
-size <query> [path]    Find all files of a certain size in bytes. Or (k)ilobytes,
-                       (m)egabytes, (g)igabytes.
-                       $ spot size '<=' 1m
-                       $ spot size '>=' 1g
-user <query> [path]    All files from user. Query can be an account or UID.
+If a command takes a [path], the results will be restricted to that directory.
 
-<query> [path]         Use any attribute from "spot attr".
-<path>                 Get all attributes for that path.
+apps                     | Installed applications.
+attr                     | Attributes that can be used with "spot <query>".
+author <query> [path]    | Files from author.
+ext <query> [path]       | Any files with that extension.
+                         |     $ spot ext pdf ~
+file <query> [path]      | Find files.
+                         |     $ spot vimrc ~/dotfiles
+size <rel> <size> [path] | Find all files of a certain size in bytes.
+                         | Or (k)ilobytes, (m)egabytes, (g)igabytes.
+                         |     $ spot size '<=' 1m
+                         |     $ spot size '>=' 1g
+user <user|uid> [path]   | All files from user.
+                         |     $ spot user mhi
+                         |     $ spot user \$UID /var
+<query> [path]           | Generic query. Supports any attribute from "spot attr".
+                               $ spot foo
+                         |     $ spot 'kMDItemMusicalGenre == "*Metal*"' /data/music
+<path>                   | Get all attributes for that path.
+                         |     $ spot /
+                         |     $ spot ~/fancy.gif
 MSG
 }
 
