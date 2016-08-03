@@ -37,9 +37,9 @@ MSG
 required() {
     local argcount=$1
     shift
-    local foo=("$@")
+    local args=("$@")
     if (( argcount < $# )); then
-        echo -e "Missing: \x1b[32m${foo[$argcount]}" 1>&2
+        echo -e "Missing: \x1b[32m${args[$argcount]}" 1>&2
         exit 1
     fi
 }
@@ -56,30 +56,25 @@ find_attr_with_desc() {
 
 find_author() {
     required $# '<query>'
-    local query=$1
-    local dir=$2
+    local query=$1 dir=$2
     mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_ext() {
     required $# '<query>'
-    local ext=$1
-    local dir=$2
+    local ext=$1 dir=$2
     mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_file() {
     required $# '<user|uid>'
-    local file=$1
-    local dir=$2
+    local file=$1 dir=$2
     mdfind -name "$file" ${dir:+ -onlyin "$dir"}
 }
 
 find_size() {
     required $# '<rel> <size>' '<size>'
-    local relation=$1
-    local size=$2
-    local dir=$3
+    local relation=$1 size=$2 dir=$3
     if   [[ "$size" =~ ^[0-9]+k$ ]]; then size=$(( ${size%%k} * 1024 ))
     elif [[ "$size" =~ ^[0-9]+m$ ]]; then size=$(( ${size%%m} * 1024 * 1024 ))
     elif [[ "$size" =~ ^[0-9]+g$ ]]; then size=$(( ${size%%g} * 1024 * 1024 * 1024 ))
@@ -89,8 +84,7 @@ find_size() {
 
 find_user() {
     required $# '<user|uid>'
-    local user=$1
-    local dir=$2
+    local user=$1 dir=$2
     if [[ "$user" =~ ^[0-9]+$ ]]; then
         mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
     else
