@@ -1,6 +1,10 @@
 #!/bin/bash
 
 helpme() {
+    local gg="$(tput setaf 2)$(tput bold)"
+    local g="$(tput sgr0)$(tput setaf 2)"
+    local y=$(tput setaf 3)
+    local x=$(tput sgr0)
     cat <<MSG
 usage: $0 [command]
 
@@ -8,26 +12,26 @@ Spotlight CLI.
 
 If a command takes a [path], the results will be restricted to that directory.
 
-apps                     | Installed applications.
-attr                     | Attributes that can be used with "spot <query>".
-author <query> [path]    | Files from author.
-ext <query> [path]       | Any files with that extension.
-                         |     $ spot ext pdf ~
-file <query> [path]      | Find files.
-                         |     $ spot vimrc ~/dotfiles
-size <rel> <size> [path] | Find all files of a certain size in bytes.
-                         | Or (k)ilobytes, (m)egabytes, (g)igabytes.
-                         |     $ spot size '<=' 1m
-                         |     $ spot size '>=' 1g
-user <user|uid> [path]   | All files from user.
-                         |     $ spot user mhi
-                         |     $ spot user \$UID /var
-<query> [path]           | Generic query. Supports any attribute from "spot attr".
-                               $ spot foo
-                         |     $ spot 'kMDItemMusicalGenre == "*Metal*"' /data/music
-<path>                   | Get all attributes for that path.
-                         |     $ spot /
-                         |     $ spot ~/fancy.gif
+${gg}apps                     $x Installed applications.
+${gg}attr                     $x Attributes that can be used with "spot <query>".
+${gg}author ${g}<query> [path]    $x Files from author.
+${gg}ext ${g}<query> [path]       $x Any files with that extension.
+                             $y $ spot ext pdf ~
+${gg}file ${g}<query> [path]      $x Find files.
+                             $y $ spot vimrc ~/dotfiles
+${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
+                          Or (k)ilobytes, (m)egabytes, (g)igabytes.
+                             $y $ spot size '<=' 1m
+                             $y $ spot size '>=' 1g
+${gg}user ${g}<user|uid> [path]   $x All files from user.
+                             $y $ spot user mhi
+                             $y $ spot user \$UID /var
+${gg}<query> ${g}[path]           $x Generic query. Supports any attribute from "spot attr".
+                             $y $ spot foo
+                             $y $ spot 'kMDItemMusicalGenre == "*Metal*"' /data/music
+${gg}<path>                   $x Get all attributes for that path.
+                             $y $ spot /
+                             $y $ spot ~/fancy.gif
 MSG
 }
 
