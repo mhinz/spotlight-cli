@@ -11,9 +11,10 @@ attr                   Attributes that can be used with "spot <query>".
 author <query> [path]  Files from author.
 ext <query> [path]     Any files with that extension.
 file <query> [path]    Find files.
-size <query> [path]    Find all files of a certain size in bytes.
-                       $ spot size '<=' 10
-                       $ spot size '>=' 100m
+size <query> [path]    Find all files of a certain size in bytes. Or (k)ilobytes,
+                       (m)egabytes, (g)igabytes.
+                       $ spot size '<=' 1m
+                       $ spot size '>=' 1g
 user <query> [path]    All files from user. Query can be an account or UID.
 
 <query> [path]         Use any attribute from "spot attr".
@@ -53,6 +54,10 @@ find_size() {
     local relation=$1
     local size=$2
     local dir=$3
+    if   [[ "$size" =~ ^[0-9]+k$ ]]; then size=$(( ${size%%k} * 1024 ))
+    elif [[ "$size" =~ ^[0-9]+m$ ]]; then size=$(( ${size%%m} * 1024 * 1024 ))
+    elif [[ "$size" =~ ^[0-9]+g$ ]]; then size=$(( ${size%%g} * 1024 * 1024 * 1024 ))
+    fi
     mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
 }
 
@@ -76,7 +81,7 @@ no_command_given() {
 
 main() {
     [ $(uname) != Darwin ] &&
-        { 2>&1 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
+        { 1>&2 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
 
     case "$1" in
         apps)   find_apps               ;;
