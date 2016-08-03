@@ -21,7 +21,7 @@ ${gg}file ${g}<query> [path]      $x Find files.
 ${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
                           Or (k)ilobytes, (m)egabytes, (g)igabytes.
                              $y $ spot size '<=' 1m
-                             $y $ spot size '>=' 1g
+                             $y $ spot size '>=' 1g ~
 ${gg}user ${g}<user|uid> [path]   $x All files from user.
                              $y $ spot user mhi
                              $y $ spot user \$UID /var
