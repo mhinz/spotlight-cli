@@ -1,10 +1,11 @@
 #!/bin/bash
 
 helpme() {
-    local gg="$(tput setaf 2)$(tput bold)"
-    local g="$(tput sgr0)$(tput setaf 2)"
-    local y=$(tput setaf 3)
-    local x=$(tput sgr0)
+    local gg g y x
+    gg="$(tput setaf 2)$(tput bold)"
+    g="$(tput sgr0)$(tput setaf 2)"
+    y=$(tput setaf 3)
+    x=$(tput sgr0)
     cat <<MSG
 usage: $0 [command]
 
@@ -80,7 +81,7 @@ find_user() {
     if [[ "$user" =~ ^[0-9]+$ ]]; then
         mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
     else
-        mdfind "kMDItemFSOwnerUserID == \"$(id -u $user)\"" ${dir:+ -onlyin "$dir"}
+        mdfind "kMDItemFSOwnerUserID == \"$(id -u "$user")\"" ${dir:+ -onlyin "$dir"}
     fi
 }
 
@@ -93,7 +94,7 @@ no_command_given() {
 }
 
 main() {
-    [ $(uname) != Darwin ] &&
+    [ "$(uname)" != Darwin ] &&
         { 1>&2 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
 
     case "$1" in
