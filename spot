@@ -7,7 +7,7 @@ helpme() {
     y=$(tput setaf 3)
     x=$(tput sgr0)
     cat <<MSG
-Spotlight CLI.
+ Spotlight CLI.
 
 If a command takes a [path], the results will be restricted to that directory.
 
