@@ -131,19 +131,26 @@ main() {
     [ "$(/usr/bin/uname)" != Darwin ] &&
         { 1>&2 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
 
-    case "$1" in
-        apps)   find_apps               ;;
-        attr)   find_attr_with_desc     ;;
-        author) shift; find_author "$@" ;;
-        ext)    shift; find_ext    "$@" ;;
-        file)   shift; find_file   "$@" ;;
-        group)  shift; find_group  "$@" ;;
-        size)   shift; find_size   "$@" ;;
-        text)   shift; find_text   "$@" ;;
-        user)   shift; find_user   "$@" ;;
-        '')     helpme                  ;;
-        *)      no_command_given "$@"   ;;
-    esac | /usr/bin/less -FrXe
+    local plugin="spot-$1"
+
+    if [[ -x $(/usr/bin/type -p "$plugin") ]]; then
+        export -f required
+        shift; exec "$plugin" "$@"
+    else
+        case "$1" in
+            apps)   find_apps               ;;
+            attr)   find_attr_with_desc     ;;
+            author) shift; find_author "$@" ;;
+            ext)    shift; find_ext    "$@" ;;
+            file)   shift; find_file   "$@" ;;
+            group)  shift; find_group  "$@" ;;
+            size)   shift; find_size   "$@" ;;
+            text)   shift; find_text   "$@" ;;
+            user)   shift; find_user   "$@" ;;
+            '')     helpme                  ;;
+            *)      no_command_given "$@"   ;;
+        esac
+    fi | /usr/bin/less -FrXe
 }
 
 main "$@"
