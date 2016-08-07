@@ -22,19 +22,21 @@ ${gg}group ${g}<group|gid> [path] $x All files from user.
                              $y $ spot group \$GID /etc
 ${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
                           Or (k)ilobytes, (m)egabytes, (g)igabytes.
-                             $y $ spot size '<=' 1m
                              $y $ spot size '>=' 1g ~
-${gg}user ${g}<user|uid> [path]   $x All files from user.
-                             $y $ spot user mhi
-                             $y $ spot user \$UID /var
 ${gg}text ${g}<query> [path]      $x Find files containing text.
                              $y $ spot text 'ascii porn' ~
-${gg}<query> ${g}[path]           $x Generic query. Supports any attribute from "spot attr".
-                             $y $ spot foo
-                             $y $ spot 'kMDItemMusicalGenre == "*Metal*"' /data/music
+${gg}user ${g}<user|uid> [path]   $x All files from user.
+                             $y $ spot user \$UID /var
+
 ${gg}<path>                   $x Get all attributes for that path.
-                             $y $ spot /
                              $y $ spot ~/fancy.gif
+${gg}<query> ${g}[path]           $x Generic query. Supports any attributes from "spot attr".
+                          See link at the bottom for the syntax.
+                             $y $ spot foo
+                             $y $ spot 'kMDItemMusicalGenre == *Metal*' /data/music${x}
+
+The Spotlight query syntax explained:
+https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html
 MSG
 }
 
