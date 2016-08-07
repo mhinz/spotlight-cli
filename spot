@@ -138,7 +138,7 @@ main() {
         user)   shift; find_user   "$@" ;;
         '')     helpme                  ;;
         *)      no_command_given "$@"   ;;
-    esac
+    esac | less -FrXe
 }
 
 main "$@"
