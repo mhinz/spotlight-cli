@@ -1,5 +1,10 @@
 #!/bin/bash
 
+mdfind=/usr/bin/mdfind
+mdls=/usr/bin/mdls
+less=/usr/bin/less
+printf=/usr/bin/printf
+
 helpme() {
     local gg g y x
     gg="$(tput setaf 2)$(tput bold)"
@@ -43,14 +48,14 @@ required() {
     shift
     local args=("$@")
     if (( argcount < $# )); then
-        echo -e "Missing: \x1b[32m${args[$argcount]}" 1>&2
+        $printf "Missing: \033[32m${args[$argcount]}\n" 1>&2
         exit 1
     fi
 }
 
 find_apps() {
     for dir in {,$HOME}/Applications; do
-        mdfind -onlyin $dir 'kMDItemContentType == "com.apple.application-*"'
+        $mdfind -onlyin $dir 'kMDItemContentType == "com.apple.application-*"'
     done
 }
 
@@ -61,19 +66,19 @@ find_attr_with_desc() {
 find_author() {
     required $# '<query>'
     local query=$1 dir=$2
-    mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
+    $mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_ext() {
     required $# '<query>'
     local ext=$1 dir=$2
-    mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
+    $mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_file() {
     required $# '<user|uid>'
     local file=$1 dir=$2
-    mdfind -name "$file" ${dir:+ -onlyin "$dir"}
+    $mdfind -name "$file" ${dir:+ -onlyin "$dir"}
 }
 
 find_group() {
@@ -81,10 +86,10 @@ find_group() {
     local group=$1 dir=$2
     if [[ "$group" =~ ^[0-9]+$ ]]; then
         echo foo
-        mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
+        $mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
     else
         group=$(awk -F: -v group="^$group\$" '$1 ~ group { print $3 }' /etc/group)
-        mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
+        $mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
     fi
 }
 
@@ -95,30 +100,30 @@ find_size() {
     elif [[ "$size" =~ ^[0-9]+m$ ]]; then size=$(( ${size%%m} * 1024 * 1024 ))
     elif [[ "$size" =~ ^[0-9]+g$ ]]; then size=$(( ${size%%g} * 1024 * 1024 * 1024 ))
     fi
-    mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
+    $mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
 }
 
 find_text() {
     required $# '<query>'
     local text=$1 dir=$2
-    mdfind "kMDItemTextContent == \"*${text}*\"" ${dir:+ -onlyin "$dir"}
+    $mdfind "kMDItemTextContent == \"*${text}*\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_user() {
     required $# '<user|uid>'
     local user=$1 dir=$2
     if [[ "$user" =~ ^[0-9]+$ ]]; then
-        mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
+        $mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
     else
-        mdfind "kMDItemFSOwnerUserID == \"$(id -u "$user")\"" ${dir:+ -onlyin "$dir"}
+        $mdfind "kMDItemFSOwnerUserID == \"$(id -u "$user")\"" ${dir:+ -onlyin "$dir"}
     fi
 }
 
 no_command_given() {
     if [ -e "$1" ]; then
-        mdls "$1"
+        $mdls "$1"
     else
-        mdfind "$1" ${2:+ -onlyin "$2"}
+        $mdfind "$1" ${2:+ -onlyin "$2"}
     fi
 }
 
@@ -138,7 +143,7 @@ main() {
         user)   shift; find_user   "$@" ;;
         '')     helpme                  ;;
         *)      no_command_given "$@"   ;;
-    esac | less -FrXe
+    esac | $less -FrXe
 }
 
 main "$@"
