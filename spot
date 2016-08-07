@@ -1,10 +1,5 @@
 #!/bin/bash
 
-mdfind=/usr/bin/mdfind
-mdls=/usr/bin/mdls
-less=/usr/bin/less
-printf=/usr/bin/printf
-
 helpme() {
     local gg g y x
     gg="$(tput setaf 2)$(tput bold)"
@@ -48,7 +43,7 @@ required() {
     shift
     local args=("$@")
     if (( argcount < $# )); then
-        $printf "Missing: \033[32m${args[$argcount]}\n" 1>&2
+        /usr/bin/printf "Missing: \033[32m${args[$argcount]}\n" 1>&2
         exit 1
     fi
 }
@@ -60,7 +55,10 @@ find_apps() {
 }
 
 find_attr_with_desc() {
-    mdimport -A | awk -F '\t\t' '{ print $1 "|" $3 }' | tr -d \' | column -ts \|
+    mdimport -A | \
+        /usr/bin/awk -F '\t\t' '{ print $1 "|" $3 }' | \
+        /usr/bin/tr -d \' | \
+        /usr/bin/column -ts \|
 }
 
 find_author() {
@@ -121,14 +119,16 @@ find_user() {
 
 no_command_given() {
     if [ -e "$1" ]; then
-        $mdls "$1"
+        /usr/bin/mdls "$1"
     else
         $mdfind "$1" ${2:+ -onlyin "$2"}
     fi
 }
 
 main() {
-    [ "$(uname)" != Darwin ] &&
+    mdfind=/usr/bin/mdfind
+
+    [ "$(/usr/bin/uname)" != Darwin ] &&
         { 1>&2 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
 
     case "$1" in
@@ -143,7 +143,7 @@ main() {
         user)   shift; find_user   "$@" ;;
         '')     helpme                  ;;
         *)      no_command_given "$@"   ;;
-    esac | $less -FrXe
+    esac | /usr/bin/less -FrXe
 }
 
 main "$@"
