@@ -52,7 +52,7 @@ required() {
 
 find_apps() {
     for dir in {,$HOME}/Applications; do
-        $mdfind -onlyin $dir 'kMDItemContentType == "com.apple.application-*"'
+        $mdfind 'kMDItemContentType == "com.apple.application-*"'
     done
 }
 
