@@ -31,3 +31,44 @@ user <user|uid> [path]    All files from user.
 The Spotlight query syntax explained:
 https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html
 ```
+
+It's also fiendishly easy to add new commands to spot. For adding a command
+"music", simply add an executable shell script called "spot-music" to your
+$PATH:
+
+```sh
+#!/usr/bin/env bash
+
+# The following line is optional and outputs a small reminder,
+# if not enough arguments were given to the "music" command.
+required $# '<genre>'
+
+mdfind "kMDItemMusicalGenre == $1"
+```
+
+Using this, you can simply list all songs of a certain genre:
+
+```
+$ spot music Metal
+$ spot music "Alpine folk music"
+```
+
+You could also change spot-music to take a second optional argument, to restrict
+the matches to a certain directory:
+
+```sh
+#!/usr/bin/env bash
+
+required $# '<genre>'
+
+genre=$1
+dir=$2
+
+mdfind "kMDItemMusicalGenre == $genre" ${dir:+ -onlyin "$dir"}
+```
+
+Now, you can also use it like this:
+
+```
+$ spot music Metal ~/music
+```
