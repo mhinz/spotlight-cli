@@ -27,4 +27,7 @@ user <user|uid> [path]    All files from user.
                           See link at the bottom for the syntax.
                               $ spot foo
                               $ spot 'kMDItemMusicalGenre == *Metal*' /data/music
+
+The Spotlight query syntax explained:
+https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html
 ```
