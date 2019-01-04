@@ -1,11 +1,12 @@
 #!/bin/bash
 
+# Colors
+gg="$(tput setaf 2)$(tput bold)"
+g="$(tput sgr0)$(tput setaf 2)"
+y=$(tput setaf 250)
+x=$(tput sgr0)
+
 helpme() {
-    local gg g y x
-    gg="$(tput setaf 2)$(tput bold)"
-    g="$(tput sgr0)$(tput setaf 2)"
-    y=$(tput setaf 250)
-    x=$(tput sgr0)
     cat <<MSG
  Spotlight CLI.
 
@@ -45,7 +46,7 @@ required() {
     shift
     local args=("$@")
     if (( argcount < $# )); then
-        printf "Missing: \033[32m${args[$argcount]}\n" 1>&2
+        echo -e "Missing: ${g}${args[$argcount]}" 1>&2
         exit 1
     fi
 }
