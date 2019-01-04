@@ -4,7 +4,7 @@ helpme() {
     local gg g y x
     gg="$(tput setaf 2)$(tput bold)"
     g="$(tput sgr0)$(tput setaf 2)"
-    y=$(tput setaf 3)
+    y=$(tput setaf 250)
     x=$(tput sgr0)
     cat <<MSG
  Spotlight CLI.
@@ -15,25 +15,25 @@ ${gg}apps                     $x Installed applications.
 ${gg}attr                     $x Attributes that can be used with "spot <query>".
 ${gg}author ${g}<query> [path]    $x Files from author.
 ${gg}ext ${g}<query> [path]       $x Any files with that extension.
-                             $y $ spot ext pdf ~
+                         $y $ spot ext pdf ~
 ${gg}file ${g}<query> [path]      $x Find files.
-                             $y $ spot file vimrc ~/dotfiles
+                         $y $ spot file vimrc ~/dotfiles
 ${gg}group ${g}<group|gid> [path] $x All files from user.
-                             $y $ spot group \$GID /etc
+                         $y $ spot group \$GID /etc
 ${gg}size ${g}<rel> <size> [path] $x Find all files of a certain size in bytes.
                           Or (k)ilobytes, (m)egabytes, (g)igabytes.
-                             $y $ spot size '>=' 1g ~
+                         $y $ spot size '>=' 1g ~
 ${gg}text ${g}<query> [path]      $x Find files containing text.
-                             $y $ spot text 'ascii porn' ~
+                         $y $ spot text 'ascii porn' ~
 ${gg}user ${g}<user|uid> [path]   $x All files from user.
-                             $y $ spot user \$UID /var
+                         $y $ spot user \$UID /var
 
 ${gg}<path>                   $x Get all attributes for that path.
-                             $y $ spot ~/fancy.gif
+                         $y $ spot ~/fancy.gif
 ${gg}<query> ${g}[path]           $x Generic query. Supports any attributes from "spot attr".
                           See link at the bottom for the syntax.
-                             $y $ spot foo
-                             $y $ spot 'kMDItemMusicalGenre == *Metal*' /data/music${x}
+                         $y $ spot foo
+                         $y $ spot 'kMDItemMusicalGenre == *Metal*' /data/music${x}
 
 The Spotlight query syntax explained:
 https://developer.apple.com/library/mac/documentation/Carbon/Conceptual/SpotlightQuery/Concepts/QueryFormat.html
@@ -45,40 +45,40 @@ required() {
     shift
     local args=("$@")
     if (( argcount < $# )); then
-        /usr/bin/printf "Missing: \033[32m${args[$argcount]}\n" 1>&2
+        printf "Missing: \033[32m${args[$argcount]}\n" 1>&2
         exit 1
     fi
 }
 
 find_apps() {
     for dir in {,$HOME}/Applications; do
-        $mdfind 'kMDItemContentType == "com.apple.application-*"'
+        mdfind 'kMDItemContentType == "com.apple.application-*"'
     done
 }
 
 find_attr_with_desc() {
-    mdimport -A | \
-        /usr/bin/awk -F '\t\t' '{ print $1 "|" $3 }' | \
-        /usr/bin/tr -d \' | \
-        /usr/bin/column -ts \|
+    mdimport -A \
+        | awk -F '\t\t' '{ print $1 "|" $3 }' \
+        | tr -d \' \
+        | column -ts \|
 }
 
 find_author() {
     required $# '<query>'
     local query=$1 dir=$2
-    $mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
+    mdfind "kMDItemAuthors == \"*${query}*\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_ext() {
     required $# '<query>'
     local ext=$1 dir=$2
-    $mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
+    mdfind "kMDItemFSName == \"*.${ext}\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_file() {
     required $# '<user|uid>'
     local file=$1 dir=$2
-    $mdfind -name "$file" ${dir:+ -onlyin "$dir"}
+    mdfind -name "$file" ${dir:+ -onlyin "$dir"}
 }
 
 find_group() {
@@ -86,10 +86,10 @@ find_group() {
     local group=$1 dir=$2
     if [[ "$group" =~ ^[0-9]+$ ]]; then
         echo foo
-        $mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
+        mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
     else
         group=$(awk -F: -v group="^$group\$" '$1 ~ group { print $3 }' /etc/group)
-        $mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
+        mdfind "kMDItemFSOwnerGroupID == $group" ${dir:+ -onlyin "$dir"}
     fi
 }
 
@@ -100,42 +100,40 @@ find_size() {
     elif [[ "$size" =~ ^[0-9]+m$ ]]; then size=$(( ${size%%m} * 1024 * 1024 ))
     elif [[ "$size" =~ ^[0-9]+g$ ]]; then size=$(( ${size%%g} * 1024 * 1024 * 1024 ))
     fi
-    $mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
+    mdfind "kMDItemFSSize $relation $size" ${dir:+ -onlyin "$dir"}
 }
 
 find_text() {
     required $# '<query>'
     local text=$1 dir=$2
-    $mdfind "kMDItemTextContent == \"*${text}*\"" ${dir:+ -onlyin "$dir"}
+    mdfind "kMDItemTextContent == \"*${text}*\"" ${dir:+ -onlyin "$dir"}
 }
 
 find_user() {
     required $# '<user|uid>'
     local user=$1 dir=$2
     if [[ "$user" =~ ^[0-9]+$ ]]; then
-        $mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
+        mdfind "kMDItemFSOwnerUserID == $user" ${dir:+ -onlyin "$dir"}
     else
-        $mdfind "kMDItemFSOwnerUserID == \"$(id -u "$user")\"" ${dir:+ -onlyin "$dir"}
+        mdfind "kMDItemFSOwnerUserID == \"$(id -u "$user")\"" ${dir:+ -onlyin "$dir"}
     fi
 }
 
 no_command_given() {
     if [ -e "$1" ]; then
-        /usr/bin/mdls "$1"
+        mdls "$1"
     else
-        $mdfind "$1" ${2:+ -onlyin "$2"}
+        mdfind "$1" ${2:+ -onlyin "$2"}
     fi
 }
 
 main() {
-    mdfind=/usr/bin/mdfind
-
-    [ "$(/usr/bin/uname)" != Darwin ] &&
+    [ "$(uname)" != Darwin ] &&
         { 1>&2 echo "Thou hast angered me; this is not Darwin!"; exit 1; }
 
     local plugin="spot-$1"
 
-    if [[ -x $(/usr/bin/type -p "$plugin") ]]; then
+    if [[ -x $(type -p "$plugin") ]]; then
         export -f required
         shift; exec "$plugin" "$@"
     else
@@ -152,7 +150,7 @@ main() {
             '')     helpme                  ;;
             *)      no_command_given "$@"   ;;
         esac
-    fi | /usr/bin/less -FrXe
+    fi | less -FrXe
 }
 
 main "$@"
