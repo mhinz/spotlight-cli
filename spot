@@ -52,9 +52,7 @@ required() {
 }
 
 find_apps() {
-    for dir in {,$HOME}/Applications; do
-        mdfind 'kMDItemContentType == "com.apple.application-*"'
-    done
+    mdfind 'kMDItemContentType == "com.apple.application-*"'
 }
 
 find_attr_with_desc() {
